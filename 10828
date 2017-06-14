@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <algorithm>
+#include <string.h>
+
+int stack[10010],now=-1;
+
+void push(int x)
+{
+	stack[now]=x;
+	now+=1;
+}
+
+void pop()
+{
+	if(now>=0)
+	{printf("%d\n",stack[now-1]);
+	now-=1;
+	}
+	else
+		printf("%d\n",-1);
+}
+
+void size()
+{
+	printf("%d\n",now+1);
+}
+
+void empty()
+{
+	printf("%d\n",now==-1?1:0);
+}
+
+void top()
+{
+	printf("%d\n",now==-1?-1:stack[now-1]);
+}
+
+int main()
+{
+	int T,x,i;
+	char c[10];
+	scanf("%d",&T);
+	while(T--)
+	{
+		
+		scanf("%s",c);
+		if(strcmp(c,"push")==0)
+		{
+			scanf("%d",&x);
+			push(x);
+		}
+		else if(strcmp(c,"top")==0)
+			top();
+		else if(strcmp(c,"size")==0)
+			size();
+		else if(strcmp(c,"empty")==0)
+			empty();
+		else
+			pop();
+	}
+	return 0;
+}
