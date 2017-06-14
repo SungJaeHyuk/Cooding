@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+using namespace std;
+
+int main()
+{
+	char s1[40],s2[40],s3[40],s4[40];
+	int a,b,c,d;
+	long long int num1,num2;
+	scanf("%d %d %d %d",&a,&b,&c,&d);
+	sprintf(s1,"%d",a);
+	sprintf(s2,"%d",b);
+	sprintf(s3,"%d",c);
+	sprintf(s4,"%d",d);
+	strcat(s1,s2);
+	strcat(s3,s4);
+	num1=atoll(s1);
+	num2=atoll(s3);
+	printf("%lld",num1+num2);
+	return 0;
+}
