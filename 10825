@@ -1,0 +1,43 @@
+#include <string>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+struct student
+{
+	string name;
+	int korean,math,english;
+};
+
+bool cmp(const student &t, const student &u)
+{
+	if(t.korean==u.korean)
+	{
+		if(t.english==u.english)
+		{
+			if(t.math==u.math)
+				return t.name < u.name;
+			return t.math>u.math;
+		}
+		return t.english<u.english;
+	}
+	return t.korean>u.korean;
+}
+
+int main()
+{
+	int N;
+	student person[100000];
+	cin>>N;
+	for(int i=0;i<N;i++)
+	{
+		cin>>person[i].name>>person[i].korean>>person[i].english>>person[i].math;
+	}
+	sort(person,person+N,cmp);
+	for(int i=0;i<N;i++)
+	{
+		cout<<person[i].name<<'\n';
+	}
+	return 0;
+}
