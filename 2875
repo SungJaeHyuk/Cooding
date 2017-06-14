@@ -1,0 +1,14 @@
+#include <stdio.h>
+
+int main()
+{
+    int N,M,K,cnt=0;
+    scanf("%d %d %d",&N,&M,&K);
+    while(N>=2 && M>=1 && N+M>=K+3)
+    {
+        N-=2;
+        M-=1;
+        cnt++;
+    }
+    printf("%d",cnt);
+}
