@@ -1,0 +1,37 @@
+#include <stdio.h>
+typedef enum {False,True} bool;
+
+int main()
+{
+	int score[10],score2[10],startlink,jaeminius;
+	int i;
+	bool winlose=False;
+	for(i=1;i<=9;i++)
+	{
+		scanf("%d",&score[i]);
+	}
+	for(i=1;i<=9;i++)
+	{
+		scanf("%d",&score2[i]);
+	}
+	startlink=score2[1];
+	jaeminius=score[1];
+	if(jaeminius)
+		winlose=True;
+	for(i=2;i<=9;i++)
+	{
+		jaeminius+=score[i];
+		if(startlink<jaeminius)
+			{
+				winlose=True;
+				break;
+			}
+			startlink+=score2[i];
+
+	}
+	if(winlose)
+		printf("Yes");
+	else
+		printf("No");
+	return 0;
+}
