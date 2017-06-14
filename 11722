@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+	int dp[1000]={0},num[1000];
+	int N;
+	scanf("%d",&N);
+	for(int i=0;i<N;i++)
+	{
+		scanf("%d",&num[i]);
+	}
+	dp[0]=1;
+	for(int i=0;i<N;i++)
+	{
+		dp[i]=1;
+		for(int j=0;j<i;j++)
+		{
+			if(num[j] > num[i] && dp[i]<dp[j]+1)
+				dp[i]=dp[j]+1;
+		}
+	}
+	int maxval=dp[0];
+	for(int i=1;i<N;i++)
+	{
+		maxval=max(maxval,dp[i]);
+	}
+	printf("%d",maxval);
+	return 0;
+}
