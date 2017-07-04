@@ -1,0 +1,65 @@
+//By Dijksetra
+#include <stdio.h>
+#include <queue>
+#define INF 2000000000
+using namespace std;
+
+int main()
+{
+    vector<pair<int,int> > partygo[1001];
+    vector<pair<int,int> > homego[1001];
+    int N,M,X;
+    scanf("%d %d %d",&N,&M,&X);
+    for(int i=0;i<M;i++)
+    {
+        int from,to,go;
+        scanf("%d %d %d",&from,&to,&go);
+        partygo[from].push_back(make_pair(to,go));
+        homego[to].push_back(make_pair(from,go));
+    }
+    priority_queue<pair<int,int> > partydis;
+    priority_queue<pair<int,int> > homedis;
+    vector<int> partyval(N+1,INF);
+    vector<int> homeval(N+1,INF);
+    partyval[X]=0;
+    homeval[X]=0;
+    partydis.push(make_pair(0,X));
+    homedis.push(make_pair(0,X));
+    while(!partydis.empty())
+    {
+        auto p = partydis.top();
+        partydis.pop();
+        for(int i=0;i<partygo[p.second].size();i++)
+        {
+            int cost=-p.first+partygo[p.second][i].second;
+            if(partyval[partygo[p.second][i].first]>cost)
+            {
+                partyval[partygo[p.second][i].first]=cost;
+                partydis.push(make_pair(-cost,partygo[p.second][i].first));
+            }
+        }
+    }
+    while(!homedis.empty())
+    {
+        auto p = homedis.top();
+        homedis.pop();
+        for(int i=0;i<homego[p.second].size();i++)
+        {
+            int cost=-p.first+homego[p.second][i].second;
+            if(homeval[homego[p.second][i].first]>cost)
+            {
+                homeval[homego[p.second][i].first]=cost;
+                homedis.push(make_pair(-cost,homego[p.second][i].first));
+            }
+        }
+    }
+    int maxval=0,maxstudent=-1;
+    for(int i=1;i<=N;i++)
+    {
+        if(homeval[i]+partyval[i]>maxval)
+        {
+            maxval=homeval[i]+partyval[i];
+        }
+    }
+    printf("%d",maxval);
+}
