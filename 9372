@@ -1,0 +1,59 @@
+// By Kruskal
+#include <stdio.h>
+#include <algorithm>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+vector<int> answer;
+
+int p[1001];
+
+int find(int n)
+{
+    if(n==p[n])
+        return n;
+    else
+        return p[n]=find(p[n]);
+}
+
+void merge(int u,int v)
+{
+    u=find(u);
+    v=find(v);
+    p[u]=v;
+}
+
+int main()
+{
+    int T;
+    scanf("%d",&T);
+    while(T--)
+    {
+        int N,M;
+        scanf("%d %d",&N,&M);
+        vector<pair<int,int> > vec(M);
+        for(int i=1;i<=N;i++)
+        {
+            p[i]=i;
+        }
+        for(int i=0;i<M;i++)
+        {
+            scanf("%d %d",&vec[i].first,&vec[i].second);
+        }
+        int cnt=0;
+        for(int i=0;i<M;i++)
+        {
+            int from = find(vec[i].first);
+            int to = find(vec[i].second);
+            if(from!=to)
+            {
+                cnt+=1;
+                merge(from,to);
+            }
+        }
+        printf("%d\n",cnt);
+    }
+    return 0;
+}
