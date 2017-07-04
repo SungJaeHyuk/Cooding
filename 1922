@@ -1,0 +1,58 @@
+// By Kruskal
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+using namespace std;
+struct Edge
+{
+    int start,end,cost;
+    bool operator < (const Edge &other) const {
+        return cost<other.cost;
+    }
+};
+
+int p[1001];
+int find(int n)
+{
+    if(n==p[n])
+        return n;
+    else
+        return p[n]=find(p[n]);
+}
+
+void merge(int u,int v)
+{
+    u=find(u);
+    v=find(v);
+    p[u]=v;
+} // 짜피 u!=v일때 호출되기 때문에 상관 X
+
+int main()
+{
+    int N,M;
+    scanf("%d %d",&N,&M);
+    vector<Edge> Kruskal(M);
+    for(int i=1;i<=N;i++)
+    {
+        p[i]=i;
+    }
+    for(int i=0;i<M;i++)
+    {
+        scanf("%d %d %d",&Kruskal[i].start,&Kruskal[i].end,&Kruskal[i].cost);
+    }
+    int ans=0;
+    sort(Kruskal.begin(),Kruskal.end());
+    for(int i=0;i<M;i++)
+    {
+        Edge e=Kruskal[i];
+        int x=find(e.start);
+        int y=find(e.end);
+        if (x!=y)
+        {
+            ans+=e.cost;
+            merge(x,y);
+        }
+    }
+    printf("%d",ans);
+}
+
