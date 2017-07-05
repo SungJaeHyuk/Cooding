@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
+#include <math.h>
+
+#define INF 2000000000
+using namespace std;
+
+
+int init(vector<int> &a,vector<int> &tree,int node,int start,int end)
+{
+    if(start==end)
+        return tree[node]=a[start];
+    else
+        return tree[node]=min(init(a,tree,node*2,start,(start+end)/2),init(a,tree,node*2+1,(start+end)/2+1,end));
+}
+void update(vector<int> &tree,int node,int start,int end,int index,long long diff)
+{
+    if(index<start || index>end)
+        return;
+    tree[node]+=diff;
+    if(start!=end)
+        {
+            update(tree,node*2,start,(start+end)/2,index,diff);
+            update(tree,node*2+1,(start+end)/2+1,end,index,diff);
+        }
+}
+
+int minval(vector<int> &tree,int node,int rangestart,int rangeend,int start,int end)
+{
+    if(rangestart>end || rangeend<start)
+        return INF;
+    if(rangestart<=start && rangeend>=end)
+        return tree[node];
+    return min(minval(tree,node*2,rangestart,rangeend,start,(start+end)/2),minval(tree,node*2+1,rangestart,rangeend,(start+end)/2+1,end));
+}
+int main()
+{
+    int N,M;
+    scanf("%d %d",&N,&M);
+    vector<int> Segement(100005), tree(300000);
+    for(int i=0;i<N;i++)
+    {
+        scanf("%d",&Segement[i]);
+    }
+    init(Segement,tree,1,0,N-1);
+    vector<int> ans;
+    for(int i=0;i<M;i++)
+    {
+        int left,right;
+        scanf("%d %d",&left,&right);
+        printf("%d\n",minval(tree,1,left-1,right-1,0,N-1));
+    }
+    return 0;
+}
