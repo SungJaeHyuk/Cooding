@@ -50,16 +50,17 @@ int main(void)
 	NumStruct* tmp4;
 	NumStruct* tmp5;
 	NumStruct* tmp6;
- 
-	int a = 1001;
+
+	int a = 1022;
 	int b = 3;
-	
+
 	tmp1 = cvtDec2Bin(cvtInput2NumStruct(a, 10));
 	tmp2 = cvtDec2Bin(cvtInput2NumStruct(b, 10));
 	tmp3 = binarySum(tmp1, tmp2);
 	tmp4 = cvtBin2Dec(tmp3);
 	tmp5 = binarysubtract(tmp1, tmp2);
 	tmp6 = cvtBin2Dec(tmp5);
+
 	printf("a = %d, ", a);
 	displayNumStruct(tmp1);
 	printf("b = %d, ", b);
@@ -92,12 +93,12 @@ NumStruct* cvtInput2NumStruct(int num, int num_sys) // 함수 역할 : num을 nu
 	{
 		//printf("%d\n", num);
 		if (num % 10 >= num_sys) return NULL;
-		insert_node(&(tmp->head), NULL, create_node(num%10, NULL));
+		insert_node(&(tmp->head), NULL, create_node(num % 10, NULL));
 		tmp->digit++;
 		num /= 10;
 	}
 	//printf("%d\n", tmp->digit);
-	//displayNumStruct(tmp);
+	displayNumStruct(tmp);
 	return tmp;
 }
 
@@ -153,6 +154,7 @@ NumStruct* cvtDec2Bin(NumStruct* num)
 	// 함수 예외처리(Exception) 필요 - 입력변수가 10진수여야 함
 	// 10진법 NumStruct를 새로 생성된 NumStruct에 2진법으로 저장
 	// code
+	tmp = (NumStruct*)malloc(sizeof(NumStruct));
 	if (num->num_sys != 10) return NULL;
 	tmp_node = num->head;
 	for (int i = 0; i < tmp_digit; i++)
@@ -160,14 +162,16 @@ NumStruct* cvtDec2Bin(NumStruct* num)
 		tmp_value = tmp_value * 10 + tmp_node->data;
 		tmp_node = tmp_node->link;
 	}
-	int nw = 0;
+	tmp->head = NULL;
+	tmp->num_sys = 2;
+	tmp->sign = PLUS;
+	tmp->digit = 0;
 	while (tmp_value)
 	{
-		nw = nw * 10 + tmp_value % 2;
+		insert_node(&(tmp->head), NULL, create_node(tmp_value%2,NULL));
 		tmp_value /= 2;
+		tmp->digit++;
 	}
-	printf("%d\n", nw);
-	tmp = cvtInput2NumStruct(nw, 2);
 	return tmp;
 }
 
@@ -187,7 +191,7 @@ NumStruct* cvtBin2Dec(NumStruct* num)
 	{
 		tmp_value = (tmp_value << 1) + tmp_node->data;
 		tmp_node = tmp_node->link;
-		printf("%d",tmp_value);
+		printf("%d", tmp_value);
 		puts("");
 	}
 	tmp = cvtInput2NumStruct(tmp_value, 10);
@@ -286,7 +290,7 @@ NumStruct * binarysubtract(NumStruct * num1, NumStruct * num2) //num1-num2
 			insert_node(&q, NULL, create_node(save, NULL));
 			p = p->link;
 		}
- 		q = reverse(q);
+		q = reverse(q);
 		num2->head = q;
 		tmp = binarySum(num1, num2);
 		num2->head = cp;
@@ -316,7 +320,7 @@ void insert_node(ListNode **phead, ListNode *p,
 		new_node->link = NULL;
 		*phead = new_node;
 	}
-	else if (p == NULL) { 
+	else if (p == NULL) {
 		// p가 NULL이면 첫번째 노드로 삽입
 		new_node->link = *phead;
 		*phead = new_node;
@@ -380,7 +384,7 @@ ListNode *concat(ListNode *head1, ListNode *head2)
 		return head1;
 	}
 }
- 
+
 ListNode *reverse(ListNode *head)
 {
 	// 순회 포인터로 p, q, r을 사용
