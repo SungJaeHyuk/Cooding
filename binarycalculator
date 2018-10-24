@@ -90,7 +90,7 @@ NumStruct* cvtInput2NumStruct(int num, int num_sys) // 함수 역할 : num을 nu
 	num = abs(num);
 	while (num)
 	{
-		printf("%d\n", num);
+		//printf("%d\n", num);
 		if (num % 10 >= num_sys) return NULL;
 		insert_node(&(tmp->head), NULL, create_node(num%10, NULL));
 		tmp->digit++;
@@ -139,6 +139,7 @@ NumStruct* binarySum(NumStruct* num1, NumStruct* num2)
 	}
 	if (carry) insert_node(&(tmp->head), NULL, create_node(carry, NULL)), tmp->digit++;
 	num1->head = reverse(tmp_node1), num2->head = reverse(tmp_node2);
+	displayNumStruct(tmp);
 	return tmp;
 }
 
@@ -186,6 +187,8 @@ NumStruct* cvtBin2Dec(NumStruct* num)
 	{
 		tmp_value = (tmp_value << 1) + tmp_node->data;
 		tmp_node = tmp_node->link;
+		printf("%d",tmp_value);
+		puts("");
 	}
 	tmp = cvtInput2NumStruct(tmp_value, 10);
 	return tmp;
@@ -346,7 +349,7 @@ void display(ListNode *head)
 }
 
 void display_recur(ListNode *head)
-
+{
 	ListNode *p = head;
 	if (p != NULL) {
 		printf("%d", p->data);
