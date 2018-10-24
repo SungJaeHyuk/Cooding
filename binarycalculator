@@ -1,0 +1,407 @@
+/*
+학번:
+이름:
+Visual Studio Version :
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define PLUS 1
+#define MINUS 2
+
+typedef int element;
+typedef struct ListNode {
+	element data;
+	struct ListNode *link;
+} ListNode;
+
+typedef struct NumStruct {
+	int num_sys;
+	int digit;
+	int sign;
+	ListNode * head;
+} NumStruct;
+
+NumStruct* cvtInput2NumStruct(int num, int num_sys);
+NumStruct* binarySum(NumStruct* num1, NumStruct* num2);
+NumStruct* cvtDec2Bin(NumStruct* num);
+NumStruct* cvtBin2Dec(NumStruct* num);
+void displayNumStruct(NumStruct* num);
+int cvtBin2Dec2(NumStruct* num);
+
+int comp(NumStruct* num1, NumStruct* num2);
+NumStruct* binarysubtract(NumStruct* num1, NumStruct* num2);
+void insert_node(ListNode **phead, ListNode *p, ListNode *new_node);
+void remove_node(ListNode **phead, ListNode *p, ListNode *removed);
+void display(ListNode *head);
+void display_recur(ListNode *head);
+ListNode *search(ListNode *head, element x);
+ListNode *concat(ListNode *head1, ListNode *head2);
+ListNode *reverse(ListNode *head);
+ListNode *create_node(element data, ListNode *link);
+
+int main(void)
+{
+	NumStruct* tmp1;
+	NumStruct* tmp2;
+	NumStruct* tmp3;
+	NumStruct* tmp4;
+	NumStruct* tmp5;
+	NumStruct* tmp6;
+ 
+	int a = 1001;
+	int b = 3;
+	
+	tmp1 = cvtDec2Bin(cvtInput2NumStruct(a, 10));
+	tmp2 = cvtDec2Bin(cvtInput2NumStruct(b, 10));
+	tmp3 = binarySum(tmp1, tmp2);
+	tmp4 = cvtBin2Dec(tmp3);
+	tmp5 = binarysubtract(tmp1, tmp2);
+	tmp6 = cvtBin2Dec(tmp5);
+	printf("a = %d, ", a);
+	displayNumStruct(tmp1);
+	printf("b = %d, ", b);
+	displayNumStruct(tmp2);
+	printf("a + b = ");
+	displayNumStruct(tmp3);
+	displayNumStruct(tmp4);
+	printf("a - b = ");
+	displayNumStruct(tmp5);
+	displayNumStruct(tmp6);
+
+	return 0;
+}
+
+NumStruct* cvtInput2NumStruct(int num, int num_sys) // 함수 역할 : num을 num_sys의 구조체로 변환 시킬것 구조체를 반환 num : 숫자, num_sys : 진법
+{
+	NumStruct* tmp;
+	// 함수 예외처리(Exception) 필요 - num의 각 자리수는 num_sys보다 크거나 같을 수 없음
+	tmp = (NumStruct*)malloc(sizeof(NumStruct));
+	// 매개변수로 받은 num, num_sys 정보를 이용하여 구조체를 생성하고 초기화
+	// code
+
+	if (num > 0) tmp->sign = PLUS;
+	else tmp->sign = MINUS;
+	tmp->num_sys = num_sys;
+	tmp->head = NULL;
+	tmp->digit = 0;
+	num = abs(num);
+	while (num)
+	{
+		printf("%d\n", num);
+		if (num % 10 >= num_sys) return NULL;
+		insert_node(&(tmp->head), NULL, create_node(num%10, NULL));
+		tmp->digit++;
+		num /= 10;
+	}
+	//printf("%d\n", tmp->digit);
+	//displayNumStruct(tmp);
+	return tmp;
+}
+
+NumStruct* binarySum(NumStruct* num1, NumStruct* num2)
+{
+	NumStruct* tmp;
+	ListNode * node1;
+	ListNode * node2;
+	ListNode * tmp_node1;
+	ListNode * tmp_node2;
+	int tmp_digit1;
+	int tmp_digit2;
+	int carry = 0;
+	tmp = (NumStruct*)malloc(sizeof(NumStruct));
+
+	// 함수 예외처리(Exception) 필요 - 입력변수가 모두 2진수여야 함
+	// num_sys가 2인 두 NumStruct를 더하여 새로 생성된 NumStruct에 저장
+	// 중간에 NumStruct를 10진법으로 변수에 저장했다가 이를 더하여 다시 2진법 NumStruct로 변환하지 않도록 함
+	// code
+	tmp->head = NULL;
+	tmp->num_sys = 2;
+	int sum = 0;
+	if (!(num1->num_sys == 2 && num2->num_sys == 2)) return NULL;
+	tmp->digit = 0;
+	node1 = reverse(num1->head), node2 = reverse(num2->head);
+	tmp_node1 = node1, tmp_node2 = node2;
+	while (node1 != NULL || node2 != NULL)
+	{
+		//printf("%d\n", ++cnt);
+		//printf("%d %d\n", tmp_node1->data,tmp_node2->data);
+		sum = carry + (node1 ? node1->data : 0) + (node2 ? node2->data : 0);
+		carry = sum >= 2 ? 1 : 0;
+		sum %= 2;
+		insert_node(&(tmp->head), NULL, create_node(sum, NULL));
+		tmp->digit++;
+		if (node1) node1 = node1->link;
+		if (node2) node2 = node2->link;
+		//printf("%d\n", carry);
+	}
+	if (carry) insert_node(&(tmp->head), NULL, create_node(carry, NULL)), tmp->digit++;
+	num1->head = reverse(tmp_node1), num2->head = reverse(tmp_node2);
+	return tmp;
+}
+
+NumStruct* cvtDec2Bin(NumStruct* num)
+{
+	NumStruct* tmp;
+	ListNode* tmp_node;
+	int tmp_digit = num->digit;
+	int tmp_value = 0;
+
+	// 함수 예외처리(Exception) 필요 - 입력변수가 10진수여야 함
+	// 10진법 NumStruct를 새로 생성된 NumStruct에 2진법으로 저장
+	// code
+	if (num->num_sys != 10) return NULL;
+	tmp_node = num->head;
+	for (int i = 0; i < tmp_digit; i++)
+	{
+		tmp_value = tmp_value * 10 + tmp_node->data;
+		tmp_node = tmp_node->link;
+	}
+	int nw = 0;
+	while (tmp_value)
+	{
+		nw = nw * 10 + tmp_value % 2;
+		tmp_value /= 2;
+	}
+	printf("%d\n", nw);
+	tmp = cvtInput2NumStruct(nw, 2);
+	return tmp;
+}
+
+NumStruct* cvtBin2Dec(NumStruct* num)
+{
+	NumStruct* tmp;
+	ListNode* tmp_node;
+	int tmp_digit = num->digit;
+	int tmp_value = 0;
+	// 함수 예외처리(Exception) 필요 - 입력변수가 2진수여야 함
+	// 2진법 NumStruct를 새로 생성된 NumStruct에 10진법으로 저장
+	// code
+	if (num->num_sys != 2) return NULL;
+	//printf("%d\n", num->digit);
+	tmp_node = num->head;
+	for (int i = 0; i < tmp_digit; i++)
+	{
+		tmp_value = (tmp_value << 1) + tmp_node->data;
+		tmp_node = tmp_node->link;
+	}
+	tmp = cvtInput2NumStruct(tmp_value, 10);
+	return tmp;
+}
+
+void displayNumStruct(NumStruct* num)
+{
+	// display 함수를 활용하여, 결과화면과 같이 출력되도록 할 것
+	// code
+	display_recur(num->head);
+	printf("(%d)\n", num->num_sys);
+}
+
+int cvtBin2Dec2(NumStruct * num)
+{
+	NumStruct* tmp;
+	ListNode* tmp_node;
+	int tmp_digit = num->digit;
+	int tmp_value = 0;
+	// 함수 예외처리(Exception) 필요 - 입력변수가 2진수여야 함
+	// 2진법 NumStruct를 새로 생성된 NumStruct에 10진법으로 저장
+	// code
+	if (num->num_sys != 2) return NULL;
+	//printf("%d\n", num->digit);
+	tmp_node = num->head;
+	int cnt = 0;
+	while (tmp_node != NULL)
+	{
+		cnt++;
+		tmp_value = (tmp_value << 1) + tmp_node->data;
+		tmp_node = tmp_node->link;
+	}
+	return tmp_value;
+}
+
+int comp(NumStruct * num1, NumStruct * num2)
+{
+	int n1 = cvtBin2Dec2(num1), n2 = cvtBin2Dec2(num2);
+	if (n1 > n2) return 1;
+	return -1;
+}
+
+NumStruct * binarysubtract(NumStruct * num1, NumStruct * num2) //num1-num2
+{
+	NumStruct* tmp;
+	tmp = (NumStruct*)malloc(sizeof(NumStruct));
+	tmp->head = NULL;
+	tmp->digit = 0;
+	tmp->sign = PLUS;
+	tmp->num_sys = 2;
+	if (comp(num1, num2) == 1) // num1 > num2
+	{
+		ListNode *p = num2->head, *cp = p;
+		ListNode *q = NULL;
+		int cnt = num2->digit;
+		for (int i = num2->digit; i < num1->digit; i++) insert_node(&p, NULL, create_node(0, NULL));
+		while (p != NULL)
+		{
+			int save = p->data == 1 ? 0 : 1;
+			insert_node(&q, NULL, create_node(save, NULL));
+			p = p->link;
+		}
+		q = reverse(q);
+		num2->head = q;
+		tmp = binarySum(num1, num2);
+		tmp = binarySum(tmp, cvtInput2NumStruct(1, 2));
+		num2->head = cp;
+		ListNode *l = tmp->head;
+		ListNode * tp3 = l;
+		ListNode* tp4 = NULL;
+		while (l != NULL) l = l->link;
+		for (int i = 0; i < tmp->digit - num1->digit; i++)
+		{
+			insert_node(&tp4, NULL, create_node(0, NULL));
+			tp3 = tp3->link;
+		}
+		while (tp3 != NULL)
+		{
+			insert_node(&tp4, NULL, create_node(tp3->data, NULL));
+			tp3 = tp3->link;
+		}
+		tp4 = reverse(tp4);
+		tmp->head = tp4;
+		tmp = binarySum(tmp, cvtInput2NumStruct(0, 2));
+	}
+	else
+	{
+		ListNode *p = num2->head, *cp = p;
+		ListNode *q = NULL;
+		int cnt = num2->digit;
+		for (int i = num2->digit; i < num1->digit; i++) insert_node(&p, NULL, create_node(0, NULL));
+		while (p != NULL)
+		{
+			int save = p->data == 1 ? 0 : 1;
+			insert_node(&q, NULL, create_node(save, NULL));
+			p = p->link;
+		}
+ 		q = reverse(q);
+		num2->head = q;
+		tmp = binarySum(num1, num2);
+		num2->head = cp;
+		ListNode *tp = NULL;
+		ListNode *cp2 = tmp->head;
+		while (cp2 != NULL)
+		{
+			int save = cp2->data == 1 ? 0 : 1;
+			insert_node(&tp, NULL, create_node(save, NULL));
+			cp2 = cp2->link;
+		}
+		tp = reverse(tp);
+		tmp->head = tp;
+		binarySum(tmp, cvtInput2NumStruct(0, 2));
+	}
+	return tmp;
+}
+
+// phead: 리스트의 헤드 포인터의 포인터
+// p : 선행 노드
+// new_node : 삽입될 노드 
+void insert_node(ListNode **phead, ListNode *p,
+	ListNode *new_node)
+{
+	if (*phead == NULL) {
+		// 공백리스트인 경우
+		new_node->link = NULL;
+		*phead = new_node;
+	}
+	else if (p == NULL) { 
+		// p가 NULL이면 첫번째 노드로 삽입
+		new_node->link = *phead;
+		*phead = new_node;
+	}
+	else {
+		// p 다음에 삽입
+		new_node->link = p->link;
+		p->link = new_node;
+	}
+}
+
+// phead : 헤드 포인터에 대한 포인터 
+// p: 삭제될 노드의 선행 노드
+// removed: 삭제될 노드 
+void remove_node(ListNode **phead, ListNode *p, ListNode *removed)
+{
+	if (p == NULL) *phead = (*phead)->link;
+	else p->link = removed->link;
+	free(removed);
+}
+
+void display(ListNode *head)
+{
+	ListNode *p = head;
+	while (p != NULL) {
+		printf("%d->", p->data);
+		p = p->link;
+	}
+	printf("\n");
+}
+
+void display_recur(ListNode *head)
+
+	ListNode *p = head;
+	if (p != NULL) {
+		printf("%d", p->data);
+		display_recur(p->link);
+	}
+}
+
+ListNode *search(ListNode *head, element x)
+{
+	ListNode *p;
+	p = head;
+	while (p != NULL) {
+		if (p->data == x) return p;  // 탐색 성공
+		p = p->link;
+	}
+	return p;  // 탐색 실패일 경우 NULL 반환
+}
+
+ListNode *concat(ListNode *head1, ListNode *head2)
+{
+	ListNode *p;
+	if (head1 == NULL) return head2;
+	else if (head2 == NULL) return head1;
+	else {
+		p = head1;
+		while (p->link != NULL) p = p->link;
+		p->link = head2;
+		return head1;
+	}
+}
+ 
+ListNode *reverse(ListNode *head)
+{
+	// 순회 포인터로 p, q, r을 사용
+	ListNode *p, *q, *r;
+	p = head;         // p는 역순으로 만들 리스트
+	q = NULL;         // q는 역순으로 만들 노드
+	while (p != NULL) {
+		r = q;          // r은 역순으로 된 리스트.    r은 q, q는 p를 차례로 따라간다.
+		q = p;
+		p = p->link;
+		q->link = r;      // q의 링크 방향을 바꾼다.
+	}
+	return q; 	// q는 역순으로 된 리스트의 헤드 포인터
+}
+// 노드를 동적으로 생성하는 프로그램
+ListNode *create_node(element data, ListNode *link)
+{
+	ListNode *new_node;
+	new_node = (ListNode *)malloc(sizeof(ListNode));
+	if (new_node == NULL) {
+		fprintf(stderr, "메모리 할당 에러\n");
+		exit(1);
+	}
+	new_node->data = data;
+	new_node->link = link;
+	return(new_node);
+}
