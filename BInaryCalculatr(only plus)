@@ -183,15 +183,14 @@ NumStruct* cvtBin2Dec(NumStruct* num)
 	// 함수 예외처리(Exception) 필요 - 입력변수가 2진수여야 함
 	// 2진법 NumStruct를 새로 생성된 NumStruct에 10진법으로 저장
 	// code
-	if (num->num_sys != 2) return NULL;
-	//printf("%d\n", num->digit);
-	tmp_node = num->head;
+	if (num->num_sys != 2) return NULL; // 2진수가 아니면 버린다.
+	tmp_node = num->head; // 넘겨준다.
 	for (int i = 0; i < tmp_digit; i++)
 	{
-		tmp_value = (tmp_value << 1) + tmp_node->data;
-		tmp_node = tmp_node->link;
+		tmp_value = (tmp_value << 1) + tmp_node->data; // 자리수가 한자리 늘어나면 늘어나기 전의 수는 2배가 된다.
+		tmp_node = tmp_node->link; // 다음껄로 넘어간다.
 	}
-	tmp = cvtInput2NumStruct(tmp_value, 10);
+	tmp = cvtInput2NumStruct(tmp_value, 10); // 현재 담긴 값을 10진수로 구조체에 저장한다.
 	return tmp;
 }
  
@@ -199,8 +198,8 @@ void displayNumStruct(NumStruct* num)
 {
 	// display 함수를 활용하여, 결과화면과 같이 출력되도록 할 것
 	// code
-	display_recur(num->head);
-	printf("(%d)\n", num->num_sys);
+	display_recur(num->head); // 구조체 출력
+	printf("(%d)\n", num->num_sys); // (진법) 출력
 }
 
 // phead: 리스트의 헤드 포인터의 포인터
