@@ -29,7 +29,6 @@ NumStruct* binarySum(NumStruct* num1, NumStruct* num2);
 NumStruct* cvtDec2Bin(NumStruct* num);
 NumStruct* cvtBin2Dec(NumStruct* num);
 void displayNumStruct(NumStruct* num);
-int cvtBin2Dec2(NumStruct* num);
 
 void insert_node(ListNode **phead, ListNode *p, ListNode *new_node);
 void remove_node(ListNode **phead, ListNode *p, ListNode *removed);
@@ -73,24 +72,21 @@ NumStruct* cvtInput2NumStruct(int num, int num_sys) // 함수 역할 : num을 nu
 	tmp = (NumStruct*)malloc(sizeof(NumStruct));
 	// 매개변수로 받은 num, num_sys 정보를 이용하여 구조체를 생성하고 초기화
 	// code
-
-	if (num > 0) tmp->sign = PLUS;
-	else tmp->sign = MINUS;
-	tmp->num_sys = num_sys;
-	tmp->head = NULL;
-	tmp->digit = 0;
-	num = abs(num);
-	while (num)
+	if (num > 0) tmp->sign = PLUS; // 숫자가 0보다 크면 plus
+	else tmp->sign = MINUS; // 그 외에는 minus
+	tmp->num_sys = num_sys; // 현재 구조체의 진법 : num_sys
+	tmp->head = NULL; // 현재 구조체의 포인터가 가르키고 있는 부분은 NULL로 초기화한다.
+	tmp->digit = 0; // 현재 구조체의 숫자 개수는 0
+	num = abs(num); // num<0일 수에 정수로 바꿔야함
+	while (num) // num>0일 때까지 계속 반복
 	{
 		//printf("%d\n", num);
-		if (num % 10 >= num_sys) return NULL;
-		insert_node(&(tmp->head), NULL, create_node(num % 10, NULL));
-		tmp->digit++;
-		num /= 10;
+		if (num % 10 >= num_sys) return NULL; // num이 현재 진법으로 변환되어 있는 상태인데, 각 자리가 num_sys 보다 크면 그건 num_sys 진법으로 나타낸 것이 아니기 때문에 NULL을 반환한다.
+		insert_node(&(tmp->head), NULL, create_node(num % 10, NULL)); // 아니면 Simple Linked List에 삽입
+		tmp->digit++; // 자리수 UP
+		num /= 10; // num을 10으로 나눠주기
 	}
-	//printf("%d\n", tmp->digit);
-	//displayNumStruct(tmp);
-	return tmp;
+	return tmp; // 구조체로 바뀌었던 결과 반환
 }
 
 NumStruct* binarySum(NumStruct* num1, NumStruct* num2)
@@ -109,28 +105,32 @@ NumStruct* binarySum(NumStruct* num1, NumStruct* num2)
 	// num_sys가 2인 두 NumStruct를 더하여 새로 생성된 NumStruct에 저장
 	// 중간에 NumStruct를 10진법으로 변수에 저장했다가 이를 더하여 다시 2진법 NumStruct로 변환하지 않도록 함
 	// code
-	tmp->head = NULL;
-	tmp->num_sys = 2;
-	int sum = 0;
-	if (!(num1->num_sys == 2 && num2->num_sys == 2)) return NULL;
-	tmp->digit = 0;
-	node1 = reverse(num1->head), node2 = reverse(num2->head);
-	tmp_node1 = node1, tmp_node2 = node2;
-	while (node1 != NULL || node2 != NULL)
+	tmp->head = NULL; // 동일하게 NULL로 초기화
+	tmp->num_sys = 2; // 이진수 + 이진수 = 이진수
+	int sum = 0; // 합계변수 초기화
+	if (!(num1->num_sys == 2 && num2->num_sys == 2)) return NULL; // 만약 둘 다 2가 아니라면 NULL을 반환
+	tmp->digit = 0; // 현재 더한 수의 값의 총 숫자수 : 0
+	node1 = reverse(num1->head), node2 = reverse(num2->head); 
+	// 만약 num1이 111100001 이렇게 되어있으면
+	// 구조체에는 1->1->1->1->0->0->0->0->1->NULL 이렇게 저장되어있다.
+	// 하지만 실제로 우리가 구현을 할 때에는 뒤에서부터 계산해야함
+	// 즉 NULL<-1<-1<-1<-1<-0<-0<-0<-0<-1 이렇게 바꾸어줘야 한다.
+	// 이 일을 하는건 reverse 함수
+	tmp_node1 = node1, tmp_node2 = node2; // 본격적인 계산을 위해 임시적인 listnode에 삽입 나중에 num1과 num2를 바꿔줄 애가 필요하고, 그거 때문에 잠시 대입했다가 나중에 바꿔줄것
+	while (node1 != NULL || node2 != NULL) //  두 포인터 둘다 NULL 이 되면 더하기가 불가능
 	{
-		//printf("%d\n", ++cnt);
-		//printf("%d %d\n", tmp_node1->data,tmp_node2->data);
-		sum = carry + (node1 ? node1->data : 0) + (node2 ? node2->data : 0);
-		carry = sum >= 2 ? 1 : 0;
-		sum %= 2;
-		insert_node(&(tmp->head), NULL, create_node(sum, NULL));
+		sum = carry + (node1 ? node1->data : 0) + (node2 ? node2->data : 0); // carry : 이전의 계산에서 넘어온것, 받아올림 개념 따라서 현재 자리 계산 값은 node1 값 + node2 값 + carryy값
+		carry = sum >= 2 ? 1 : 0; // 만약 지금 값이 2보다 크면 받아올림 해줘야함
+		sum %= 2; // 진법에 맞추기 위함. 이게 노드로 들어가기 때문이다.
+		insert_node(&(tmp->head), NULL, create_node(sum, NULL)); 
 		tmp->digit++;
-		if (node1) node1 = node1->link;
-		if (node2) node2 = node2->link;
-		//printf("%d\n", carry);
+		if (node1) node1 = node1->link; // 다음 자리로 넘어간다.
+		if (node2) node2 = node2->link; // 다음 자리로 넘어간다.
 	}
 	if (carry) insert_node(&(tmp->head), NULL, create_node(carry, NULL)), tmp->digit++;
+	// 둘다 NULL이 될 때까지 계산한 후에 carry가 남아있으면 그건 올려줘야 하는것이기 때문에 올려준다.
 	num1->head = reverse(tmp_node1), num2->head = reverse(tmp_node2);
+	//num1과 num2 포인터에 원래 값을 넣어준다. reverse의 reverse의 원래랑 똑같기 때문에 reverse해서 넣어준다.
 	displayNumStruct(tmp);
 	return tmp;
 }
@@ -145,25 +145,33 @@ NumStruct* cvtDec2Bin(NumStruct* num)
 	// 함수 예외처리(Exception) 필요 - 입력변수가 10진수여야 함
 	// 10진법 NumStruct를 새로 생성된 NumStruct에 2진법으로 저장
 	// code
-	tmp = (NumStruct*)malloc(sizeof(NumStruct));
-	if (num->num_sys != 10) return NULL;
-	tmp_node = num->head;
+	tmp = (NumStruct*)malloc(sizeof(NumStruct)); // tmp를 동적할당 해준다. 이유는 뒤의 연산에서 나온다.
+	if (num->num_sys != 10) return NULL; // 10진수에서 2진수로 바꾸는거기 때문에 10진수가 아니면 pass
+	tmp_node = num->head; // 연산을 할 listnode를 가져와서 저장해준다.
 	for (int i = 0; i < tmp_digit; i++)
 	{
-		tmp_value = tmp_value * 10 + tmp_node->data;
-		tmp_node = tmp_node->link;
+		tmp_value = tmp_value * 10 + tmp_node->data; // 현재 구조체로 나와있는 수가 얼마인지 숫자로 표현해주는 것
+		// 1->4->2->3 이면 1423을 표현
+		// 1 -> 1*10+4 -> 1*100+4*10+2 -> 1*1000+4*100+10*2+3=1423
+		tmp_node = tmp_node->link; // linked list 다음 요소로 넘어간다.
 	}
-	tmp->head = NULL;
-	tmp->num_sys = 2;
-	tmp->sign = PLUS;
-	tmp->digit = 0;
+	tmp->head = NULL; // 가르키고 있는것을 NULL로 초기화
+	tmp->num_sys = 2; // 2진수
+	tmp->sign = PLUS; // 양수
+	tmp->digit = 0; // 자리수 0
 	while (tmp_value)
 	{
-		insert_node(&(tmp->head), NULL, create_node(tmp_value%2,NULL));
-		tmp_value /= 2;
-		tmp->digit++;
+		insert_node(&(tmp->head), NULL, create_node(tmp_value%2,NULL)); // 끝자리%2를 노드로 추가해준다. 십진법을 이진법으로 바꾸는 방법 참고
+		tmp_value /= 2; // 2로 나눈다.
+		tmp->digit++; // 자리수 +1
 	}
-	return tmp;
+	// 주어진 방법대로 10진수를 2진수로 바꾸는 것엔 두가지 방법이 있다.
+	// 첫번째는 10진수를 2진수로 바꾸되, 그 바꾼 2진수의 표현을 정수로 저장한 것이다.
+	// 예를 들면 15 같은 경우엔 이진수로 나타내면 1111인데, 이 경우 숫자 천백십일로 저장한것이다.
+	// 하지만 이런 경우 숫자가 조금만 커져도 OverFlow가 나므로 값의 손해를 본다.
+	// 이에 대처하기 위해 그냥 바로 10진수에서 2진수로 바꿔주면서 노드를 추가하는 것이다.
+	// 본래 의도하는것은 첫번째 풀이였던것 같은데 OverFlow가 떠서 바꾼다.
+	return tmp; // 구조체반환
 }
 
 NumStruct* cvtBin2Dec(NumStruct* num)
@@ -186,35 +194,13 @@ NumStruct* cvtBin2Dec(NumStruct* num)
 	tmp = cvtInput2NumStruct(tmp_value, 10);
 	return tmp;
 }
-
+ 
 void displayNumStruct(NumStruct* num)
 {
 	// display 함수를 활용하여, 결과화면과 같이 출력되도록 할 것
 	// code
 	display_recur(num->head);
 	printf("(%d)\n", num->num_sys);
-}
-
-int cvtBin2Dec2(NumStruct * num)
-{
-	NumStruct* tmp;
-	ListNode* tmp_node;
-	int tmp_digit = num->digit;
-	int tmp_value = 0;
-	// 함수 예외처리(Exception) 필요 - 입력변수가 2진수여야 함
-	// 2진법 NumStruct를 새로 생성된 NumStruct에 10진법으로 저장
-	// code
-	if (num->num_sys != 2) return NULL;
-	//printf("%d\n", num->digit);
-	tmp_node = num->head;
-	int cnt = 0;
-	while (tmp_node != NULL)
-	{
-		cnt++;
-		tmp_value = (tmp_value << 1) + tmp_node->data;
-		tmp_node = tmp_node->link;
-	}
-	return tmp_value;
 }
 
 // phead: 리스트의 헤드 포인터의 포인터
